@@ -362,5 +362,24 @@ class format_tabtopics extends format_base {
 
         return true;
     }
+    
+    
+    
+    public function section_action($section, $action, $sr) {
+        global $PAGE;
+
+        if ($section->section && ($action === 'setmarker' || $action === 'removemarker')) {
+            require_capability('moodle/course:setcurrentsection', context_course::instance($this->courseid));
+            course_set_marker($this->courseid, ($action === 'setmarker') ? $section->section : 0);
+            return null;
+        }
+
+        // For show/hide actions call the parent method and return the new content for .section_availability element.
+        $rv = parent::section_action($section, $action, $sr);
+        $renderer = $PAGE->get_renderer('format_topics');
+        $rv['section_availability'] = $renderer->section_availability($this->get_section($section));
+        return $rv;
+    }
+
 
 }
